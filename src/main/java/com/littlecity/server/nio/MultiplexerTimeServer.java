@@ -24,7 +24,7 @@ public class MultiplexerTimeServer implements Runnable {
             selector = Selector.open();
             serverSocketChannel = ServerSocketChannel.open();
             serverSocketChannel.configureBlocking(false);
-            // backlog ?
+            // backlog : 队列最大的元素数
             serverSocketChannel.socket().bind(new InetSocketAddress(port));
             serverSocketChannel.register(selector, SelectionKey.OP_ACCEPT);
             System.out.println("the time server is start in port:" + port);

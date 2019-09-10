@@ -1,6 +1,5 @@
-package com.littlecity.server;
+package com.littlecity.server.nio;
 
-import com.littlecity.server.nio.TimeClientHandle;
 
 public class TimeClient {
 
