@@ -1,9 +1,11 @@
 package com.littlecity.server.netty;
 
+import com.littlecity.server.entity.UserInfo;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelPromise;
 
 public class TimeClientHandler extends ChannelHandlerAdapter {
 
@@ -11,24 +13,25 @@ public class TimeClientHandler extends ChannelHandlerAdapter {
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
+        System.out.println("client is active, send message");
         for (int i = 0; i < 100; i++) {
 
-            byte[] order = ("query time order" + System.getProperty("line.separator")).getBytes();
-            ByteBuf message = Unpooled.buffer(order.length);
-            message.writeBytes(order);
-            ctx.writeAndFlush(message);
+
+            UserInfo userInfo = new UserInfo();
+            userInfo.setAge(i);
+            userInfo.setName("name-"+i);
+            ctx.write(userInfo);
+
         }
+        ctx.flush();
 
     }
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception{
-//        ByteBuf buf = (ByteBuf) msg;
-//        byte[] resp = new byte[buf.readableBytes()];
-//        buf.readBytes(resp);
-//        String body = new String(resp, "UTF-8");
-        String body = (String) msg;
-        System.out.println("time is: " + body +",counter:"+ counter++);
+
+
+        System.out.println("client recevie:"+ msg);
 
     }
 
