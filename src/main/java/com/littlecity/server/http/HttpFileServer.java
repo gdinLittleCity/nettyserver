@@ -1,5 +1,6 @@
 package com.littlecity.server.http;
 
+import com.littlecity.server.config.ServerConfig;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
@@ -12,15 +13,18 @@ import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpRequestDecoder;
 import io.netty.handler.codec.http.HttpResponseEncoder;
 import io.netty.handler.stream.ChunkedWriteHandler;
+import lombok.extern.slf4j.Slf4j;
+import org.aeonbits.owner.ConfigFactory;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
+@Slf4j
 public class HttpFileServer {
+
+    private static ServerConfig cfg = ConfigFactory.create(ServerConfig.class);
 
 
     public void bind(int port){
+        log.info("max file size:{}M", cfg.maxFileSize());
         EventLoopGroup bossGroup = new NioEventLoopGroup();
         EventLoopGroup workGroup = new NioEventLoopGroup();
 
@@ -29,12 +33,18 @@ public class HttpFileServer {
         bootstrap.group(bossGroup, workGroup)
                 .channel(NioServerSocketChannel.class)
                 .option(ChannelOption.SO_BACKLOG, 1024)
+                .childOption(ChannelOption.SO_KEEPALIVE, true)
+                .childOption(ChannelOption.TCP_NODELAY, true)
                 .childHandler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     protected void initChannel(SocketChannel socketChannel) throws Exception {
+                        // 请求数据 解码
                         socketChannel.pipeline().addLast("http-request-decoder", new HttpRequestDecoder());
-                        socketChannel.pipeline().addLast("http-aggregator",new HttpObjectAggregator(10 * 1024 * 1024));
+                        // body数据合并
+                        socketChannel.pipeline().addLast("http-aggregator",new HttpObjectAggregator( cfg.maxFileSize() * 1024 * 1024));
+                        // 响应数据 编码
                         socketChannel.pipeline().addLast("http-response-encoder", new HttpResponseEncoder());
+                        // 块处理
                         socketChannel.pipeline().addLast("http-chunk", new ChunkedWriteHandler());
                         socketChannel.pipeline().addLast("file-server-handler", new HttpFileServerHandler());
 
@@ -53,7 +63,8 @@ public class HttpFileServer {
     }
 
     public static void main(String[] args) {
-        new HttpFileServer().bind(8080);
+        log.info("http server start .");
+        new HttpFileServer().bind(cfg.port());
 
     }
 }
