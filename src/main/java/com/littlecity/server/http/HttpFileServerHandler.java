@@ -55,14 +55,14 @@ public class HttpFileServerHandler extends SimpleChannelInboundHandler<FullHttpR
             StringBuilder sb = new StringBuilder();
             sb.append(DiskFileUpload.baseDirectory)
                     .append(File.separator)
-                    .append(module)
-                    .append(File.separator)
-                    .append(fileUpload.getFilename());
+                    .append(module);
             if (fileUpload.isCompleted()) {
-                File newFile = new File(sb.toString());
+                File newFileParent = new File(sb.toString());
+                if (!newFileParent.exists()){
+                    newFileParent.mkdirs();
+                }
+                File newFile = new File(newFileParent, fileUpload.getFilename());
                 boolean renameResult = fileUpload.renameTo(newFile);
-//                File file = fileUpload.getFile();
-//                boolean renameResult = file.renameTo();
 
                 log.info("rename to result:{}", renameResult);
             }
