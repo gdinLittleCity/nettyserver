@@ -32,10 +32,10 @@ public class HttpRouterServer {
         // But you can make them classes, and at HttpRouterServerHandler once you
         // get a target class, you can create an instance of it and dispatch the
         // request to the instance etc.
-        Router<String> router = new Router<String>()
-            .GET("/",             "Index page")
-            .GET("/articles/:id", "Article show page")
-            .notFound("404 Not Found");
+        Router<Class> router = new Router<Class>()
+            .GET("/",             ArticleController.class)
+            .GET("/articles/:id", ArticleController.class)
+            .notFound(ArticleController.class);
         System.out.println(router);
 
         NioEventLoopGroup bossGroup   = new NioEventLoopGroup(1);

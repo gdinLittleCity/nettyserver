@@ -23,7 +23,7 @@ import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 
 /**
- * This utility handler should be put at the last position of the inbound pipeline to
+ * This utility controller should be put at the last position of the inbound pipeline to
  * catch all exceptions caused by bad client (closed connection, malformed request etc.)
  * and server processing, then close the connection.
  *

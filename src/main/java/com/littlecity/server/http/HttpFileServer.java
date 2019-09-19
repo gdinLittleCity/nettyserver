@@ -46,7 +46,7 @@ public class HttpFileServer {
                         socketChannel.pipeline().addLast("http-response-encoder", new HttpResponseEncoder());
                         // 块处理
                         socketChannel.pipeline().addLast("http-chunk", new ChunkedWriteHandler());
-                        socketChannel.pipeline().addLast("file-server-handler", new HttpFileServerHandler());
+                        socketChannel.pipeline().addLast("file-server-controller", new HttpFileServerHandler());
 
                     }
                 });

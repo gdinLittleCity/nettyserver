@@ -1,4 +1,4 @@
-package com.littlecity.server.http.handler;
+package com.littlecity.server.http.controller;
 
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.FullHttpResponse;
@@ -8,7 +8,7 @@ import io.netty.handler.codec.http.HttpMethod;
  * @author huangxiaocheng
  * @Date 2019/9/18
  **/
-public abstract class AbstractHttpRequestHandler implements HttpRequestHandler {
+public abstract class AbstractHttpRequestController implements HttpRequestController {
 
     @Override
     public void doService(FullHttpRequest request, FullHttpResponse response) {

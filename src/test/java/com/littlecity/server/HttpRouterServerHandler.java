@@ -15,31 +15,38 @@
  */
 package com.littlecity.server;
 
+import com.littlecity.server.http.controller.AbstractHttpRequestController;
 import com.littlecity.server.router.RouteResult;
 import com.littlecity.server.router.Router;
-import io.netty.buffer.Unpooled;
-import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.*;
-import io.netty.util.CharsetUtil;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @ChannelHandler.Sharable
-public class HttpRouterServerHandler extends SimpleChannelInboundHandler<HttpRequest> {
+public class HttpRouterServerHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
     // For simplicity of this example, route targets are just simple strings.
     // But you can make them classes, and here once you get a target class,
     // you can create an instance of it and dispatch the request to the instance etc.
-    private final Router<String> router;
+    private final Router<Class> router;
 
-    HttpRouterServerHandler(Router<String> router) {
+    HttpRouterServerHandler(Router<Class> router) {
         this.router = router;
     }
 
 
     // Display debug info.
-    private static HttpResponse createResponse(HttpRequest req, Router<String> router) {
-        RouteResult<String> routeResult = router.route(req.getMethod(), req.getUri());
+    private static HttpResponse createResponse(FullHttpRequest req, Router<Class> router) throws IllegalAccessException, InstantiationException {
+        RouteResult<Class> routeResult = router.route(req.getMethod(), req.getUri());
+        FullHttpResponse res = new DefaultFullHttpResponse(
+                HttpVersion.HTTP_1_1, HttpResponseStatus.OK);
+        Class target = routeResult.target();
+        AbstractHttpRequestController contorller = (AbstractHttpRequestController) target.newInstance();
+
+
+        contorller.doService(req, res);
 
         String content =
                 "router: \n" + router + "\n" +
@@ -49,11 +56,8 @@ public class HttpRouterServerHandler extends SimpleChannelInboundHandler<HttpReq
                 "pathParams: " + routeResult.pathParams() + "\n" +
                 "queryParams: " + routeResult.queryParams() + "\n\n" +
                 "allowedMethods: " + router.allowedMethods(req.getUri());
+        log.info("content:{}", content);
 
-        FullHttpResponse res = new DefaultFullHttpResponse(
-                HttpVersion.HTTP_1_1, HttpResponseStatus.OK,
-                Unpooled.copiedBuffer(content, CharsetUtil.UTF_8)
-        );
 
         res.headers().set(HttpHeaders.Names.CONTENT_TYPE,   "text/plain");
         res.headers().set(HttpHeaders.Names.CONTENT_LENGTH, res.content().readableBytes());
@@ -70,7 +74,7 @@ public class HttpRouterServerHandler extends SimpleChannelInboundHandler<HttpReq
     }
 
     @Override
-    protected void messageReceived(ChannelHandlerContext ctx, HttpRequest req) throws Exception {
+    protected void messageReceived(ChannelHandlerContext ctx, FullHttpRequest req) throws Exception {
         HttpResponse res = createResponse(req, router);
         flushResponse(ctx, req, res);
     }

@@ -19,20 +19,31 @@ import com.littlecity.server.router.BadClientSilencer;
 import com.littlecity.server.router.Router;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.SocketChannel;
+import io.netty.handler.codec.http.HttpObjectAggregator;
+import io.netty.handler.codec.http.HttpRequestDecoder;
+import io.netty.handler.codec.http.HttpResponseEncoder;
 import io.netty.handler.codec.http.HttpServerCodec;
+import io.netty.handler.stream.ChunkedWriteHandler;
 
 public class HttpRouterServerInitializer extends ChannelInitializer<SocketChannel> {
     private final HttpRouterServerHandler handler;
     private final BadClientSilencer badClientSilencer = new BadClientSilencer();
 
-    HttpRouterServerInitializer(Router<String> router) {
+    HttpRouterServerInitializer(Router<Class> router) {
         handler = new HttpRouterServerHandler(router);
     }
 
     @Override
     public void initChannel(SocketChannel ch) {
         ch.pipeline()
-          .addLast(new HttpServerCodec())
+        // 请求数据 解码
+        .addLast("http-request-decoder", new HttpRequestDecoder())
+        // body数据合并
+        .addLast("http-aggregator",new HttpObjectAggregator( 10 * 1024 * 1024))
+        // 响应数据 编码
+        .addLast("http-response-encoder", new HttpResponseEncoder())
+        // 块处理
+       .addLast("http-chunk", new ChunkedWriteHandler())
           .addLast(handler)
           .addLast(badClientSilencer);
     }
