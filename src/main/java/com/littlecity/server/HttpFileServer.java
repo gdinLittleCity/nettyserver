@@ -1,6 +1,9 @@
-package com.littlecity.server.http;
+package com.littlecity.server;
 
 import com.littlecity.server.config.ServerConfig;
+import com.littlecity.server.http.HttpFileServerHandler;
+import com.littlecity.server.router.http.Router;
+import com.littlecity.server.service.HelloController;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
@@ -25,6 +28,13 @@ public class HttpFileServer {
 
     public void bind(int port){
         log.info("max file size:{}M", cfg.maxFileSize());
+        Router router = new Router();
+        // 配置router
+        router.get("/getName", HelloController.class)
+              .post("/getName", HelloController.class);
+
+        router.logRouterList();
+
         EventLoopGroup bossGroup = new NioEventLoopGroup();
         EventLoopGroup workGroup = new NioEventLoopGroup();
 
@@ -46,7 +56,7 @@ public class HttpFileServer {
                         socketChannel.pipeline().addLast("http-response-encoder", new HttpResponseEncoder());
                         // 块处理
                         socketChannel.pipeline().addLast("http-chunk", new ChunkedWriteHandler());
-                        socketChannel.pipeline().addLast("file-server-controller", new HttpFileServerHandler());
+                        socketChannel.pipeline().addLast("file-server-controller", new HttpFileServerHandler(router));
 
                     }
                 });
@@ -63,7 +73,7 @@ public class HttpFileServer {
     }
 
     public static void main(String[] args) {
-        log.info("http server start .");
+        log.info("http server start . listen port:{}", cfg.port());
         new HttpFileServer().bind(cfg.port());
 
     }

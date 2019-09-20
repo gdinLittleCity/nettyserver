@@ -4,6 +4,10 @@ import com.alibaba.fastjson.JSON;
 import com.littlecity.server.config.ServerConfig;
 import com.littlecity.server.entity.HttpRequestType;
 import com.littlecity.server.entity.RespResult;
+import com.littlecity.server.http.controller.HttpRequestController;
+import com.littlecity.server.router.http.Router;
+import com.littlecity.server.router.http.RouterResult;
+import com.littlecity.server.service.HelloController;
 import com.littlecity.server.utils.HttpContextUtils;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -26,6 +30,7 @@ import java.util.Map;
  */
 @Slf4j
 public class HttpFileServerHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
+    private Router router;
 
     private static ServerConfig CONFIG = ConfigFactory.create(ServerConfig.class);
 
@@ -33,19 +38,44 @@ public class HttpFileServerHandler extends SimpleChannelInboundHandler<FullHttpR
         DiskFileUpload.baseDirectory = CONFIG.fileDir();
 
     }
+
+    public HttpFileServerHandler(Router router){
+        this.router = router;
+    }
+
     @Override
     protected void messageReceived(ChannelHandlerContext context, FullHttpRequest request) throws Exception {
         if (!request.getDecoderResult().isSuccess()) {
             sendMessage(context, HttpResponseStatus.BAD_REQUEST, "bad request");
             return;
         }
-        if (!request.getMethod().equals(HttpMethod.POST) && !request.getMethod().equals(HttpMethod.POST)){
+        if (!request.getMethod().equals(HttpMethod.POST) && !request.getMethod().equals(HttpMethod.GET)){
             sendMessage(context, HttpResponseStatus.SERVICE_UNAVAILABLE, "not support this request method.");
             return;
         }
 
         String uri = request.getUri();
         log.info("request uri is :{}", uri);
+        FullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK);
+
+
+        log.info("router begin.");
+        RouterResult route = router.route(request.getMethod(), uri);
+        log.info("router end. result:{}", route);
+
+        Class controllerClazz = route.getController();
+        HttpRequestController controller = (HttpRequestController) controllerClazz.newInstance();
+
+        controller.doService(request, response);
+        log.info("controller handler end");
+        response.headers().add(HttpHeaders.Names.CONTENT_TYPE, "application/json");
+        response.headers().add(HttpHeaders.Names.CONTENT_LENGTH, response.content().readableBytes());
+        context.writeAndFlush(response);
+
+    }
+
+
+    private void uploadFile(ChannelHandlerContext context, FullHttpRequest request) throws IOException {
         String contentType = HttpContextUtils.getContentType(request);
 
         Map<String, Object> requestParamMap = HttpContextUtils.getRequestParamMap(request);
@@ -77,13 +107,7 @@ public class HttpFileServerHandler extends SimpleChannelInboundHandler<FullHttpR
             sendMessage(context, HttpResponseStatus.OK, RespResult.ok());
             return;
         }
-
-//        ByteBuf content = request.content();
-//        byte[] contentData = new byte[content.readableBytes()];
-//        content.readBytes(contentData);
-//        System.out.println("content:" + new String(contentData, "UTF-8"));
     }
-
 
 
     private void sendMessage(ChannelHandlerContext context, HttpResponseStatus statusCode, Object msg) {
@@ -107,6 +131,12 @@ public class HttpFileServerHandler extends SimpleChannelInboundHandler<FullHttpR
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        FullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.INTERNAL_SERVER_ERROR);
+
+        ByteBuf content = response.content();
+        content.writeBytes("system internal error.".getBytes());
+
+        ctx.writeAndFlush(response);
         ctx.close();
         cause.printStackTrace();
     }

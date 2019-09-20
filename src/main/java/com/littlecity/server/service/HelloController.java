@@ -1,4 +1,4 @@
-package com.littlecity.server;
+package com.littlecity.server.service;
 
 import com.littlecity.server.http.controller.AbstractHttpRequestController;
 import io.netty.buffer.ByteBuf;
@@ -7,19 +7,18 @@ import io.netty.handler.codec.http.FullHttpResponse;
 
 /**
  * @author huangxiaocheng
- * @Date 2019/9/19
+ * @Date 2019/9/20
  **/
-public class ArticleController extends AbstractHttpRequestController {
+public class HelloController extends AbstractHttpRequestController {
     @Override
     public void doget(FullHttpRequest request, FullHttpResponse response) {
         ByteBuf content = response.content();
-        content.writeBytes("hello controller. get.".getBytes());
-
+        content.writeBytes("hello . get.".getBytes());
     }
 
     @Override
     public void doPost(FullHttpRequest request, FullHttpResponse response) {
         ByteBuf content = response.content();
-        content.writeBytes("hello controller. post.".getBytes());
+        content.writeBytes("hello . post.".getBytes());
     }
 }

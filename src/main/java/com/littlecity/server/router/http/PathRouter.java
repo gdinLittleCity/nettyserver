@@ -1,5 +1,8 @@
 package com.littlecity.server.router.http;
 
+import lombok.Data;
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -7,6 +10,7 @@ import java.util.Map;
  * @author huangxiaocheng
  * @Date 2019/9/19
  **/
+@Data
 public class PathRouter {
 
     private Map<String, Class> pathRouter = new HashMap<>();
@@ -18,13 +22,16 @@ public class PathRouter {
 
     }
 
-    public boolean matchPath(String path){
-        if (pathRouter.get(path) != null){
-            return true;
+    public Class matchPath(String path){
+        if (StringUtils.isEmpty(path)){
+            return null;
         }
 
-        return false;
+       return pathRouter.get(path);
     }
+
+
+
 
 
 }
