@@ -8,6 +8,7 @@ import io.netty.handler.codec.http.QueryStringDecoder;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -23,6 +24,21 @@ public class Router {
 
     private Class<? extends AbstractHttpRequestController> notFound;
 
+    private final static Router INSTANCE = new Router();
+
+    public static Router getInstance(){
+        return INSTANCE;
+    }
+
+    private Router(){}
+
+    /**
+     *  新增路由项
+     * @param method
+     * @param path
+     * @param controllerClass
+     * @return
+     */
     public Router addRouter(HttpMethod method, String path, Class controllerClass){
         if (anyMatchRouter(method, path)){
             return this;
@@ -42,6 +58,9 @@ public class Router {
         return this;
     }
 
+    /**
+     * 日志记录路由列表
+     */
     public void logRouterList(){
         StringBuilder sb = new StringBuilder();
         sb.append("{");
@@ -70,7 +89,12 @@ public class Router {
         return false;
     }
 
-
+    /**
+     * 根据uri,请求方式 method,进行controller路由
+     * @param method
+     * @param uri
+     * @return
+     */
     public RouterResult route(HttpMethod method, String uri){
         log.info("router method:{}, uri:{}", method.name(), uri);
         QueryStringDecoder decoder = new QueryStringDecoder(uri);
@@ -97,7 +121,9 @@ public class Router {
         }
 
         routerResult.setController(controller);
-        routerResult.setQueryParams(decoder.parameters());
+
+//        Map<String, Object> routeResultMap = getRouteResultMap(decoder);
+//        routerResult.setQueryParams(routeResultMap);
         routerResult.setUri(uri);
 
         return routerResult;

@@ -1,8 +1,10 @@
 package com.littlecity.server;
 
 import com.littlecity.server.config.ServerConfig;
+import com.littlecity.server.decoder.CustomHttpRequestDecoder;
 import com.littlecity.server.http.HttpFileServerHandler;
 import com.littlecity.server.router.http.Router;
+import com.littlecity.server.service.FileUploadController;
 import com.littlecity.server.service.HelloController;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
@@ -28,10 +30,11 @@ public class HttpFileServer {
 
     public void bind(int port){
         log.info("max file size:{}M", cfg.maxFileSize());
-        Router router = new Router();
+        Router router = Router.getInstance();
         // 配置router
         router.get("/getName", HelloController.class)
-              .post("/getName", HelloController.class);
+                .post("/upload", FileUploadController.class)
+                .post("/getName", HelloController.class);
 
         router.logRouterList();
 

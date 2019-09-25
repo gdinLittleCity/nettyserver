@@ -2,12 +2,11 @@ package com.littlecity.server.http;
 
 import com.alibaba.fastjson.JSON;
 import com.littlecity.server.config.ServerConfig;
-import com.littlecity.server.entity.HttpRequestType;
-import com.littlecity.server.entity.RespResult;
+import com.littlecity.server.entity.CustomHttpRequest;
+import com.littlecity.server.entity.CustomHttpResponse;
 import com.littlecity.server.http.controller.HttpRequestController;
 import com.littlecity.server.router.http.Router;
 import com.littlecity.server.router.http.RouterResult;
-import com.littlecity.server.service.HelloController;
 import com.littlecity.server.utils.HttpContextUtils;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -16,12 +15,7 @@ import io.netty.handler.codec.http.*;
 import io.netty.handler.codec.http.multipart.*;
 import lombok.extern.slf4j.Slf4j;
 import org.aeonbits.owner.ConfigFactory;
-import org.apache.commons.lang3.StringUtils;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -56,8 +50,6 @@ public class HttpFileServerHandler extends SimpleChannelInboundHandler<FullHttpR
 
         String uri = request.getUri();
         log.info("request uri is :{}", uri);
-        FullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK);
-
 
         log.info("router begin.");
         RouterResult route = router.route(request.getMethod(), uri);
@@ -66,48 +58,22 @@ public class HttpFileServerHandler extends SimpleChannelInboundHandler<FullHttpR
         Class controllerClazz = route.getController();
         HttpRequestController controller = (HttpRequestController) controllerClazz.newInstance();
 
-        controller.doService(request, response);
-        log.info("controller handler end");
-        response.headers().add(HttpHeaders.Names.CONTENT_TYPE, "application/json");
-        response.headers().add(HttpHeaders.Names.CONTENT_LENGTH, response.content().readableBytes());
-        context.writeAndFlush(response);
-
-    }
-
-
-    private void uploadFile(ChannelHandlerContext context, FullHttpRequest request) throws IOException {
-        String contentType = HttpContextUtils.getContentType(request);
-
+        CustomHttpRequest httpRequest = new CustomHttpRequest(HttpVersion.HTTP_1_1, request.getMethod(), request.getUri());
         Map<String, Object> requestParamMap = HttpContextUtils.getRequestParamMap(request);
-        if (contentType.equals(HttpRequestType.MULTIPART_FORM_DATA)){
-            FileUpload fileUpload = (FileUpload) requestParamMap.get("file");
-            String module = (String) requestParamMap.get("module");
-            StringBuilder sb = new StringBuilder();
-            sb.append(DiskFileUpload.baseDirectory)
-                    .append(File.separator)
-                    .append(module);
-            if (fileUpload.isCompleted()) {
-                File newFileParent = new File(sb.toString());
-                if (!newFileParent.exists()){
-                    newFileParent.mkdirs();
-                }
-                File newFile = new File(newFileParent, fileUpload.getFilename());
-                boolean renameResult = fileUpload.renameTo(newFile);
+        httpRequest.setParameterMap(requestParamMap);
 
-                log.info("rename to result:{}", renameResult);
-            }
+        CustomHttpResponse httpResponse = new CustomHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK);
 
-            Map<String,String> resultMap = new HashMap<>();
-            resultMap.put("url", sb.toString());
-            sendMessage(context, HttpResponseStatus.OK, RespResult.of(resultMap));
-            return;
-        } else {
+        controller.doService(httpRequest, httpResponse);
+        log.info("controller handler end");
 
-            log.info("param:{}", JSON.toJSONString(requestParamMap));
-            sendMessage(context, HttpResponseStatus.OK, RespResult.ok());
-            return;
-        }
+        context.write(httpResponse);
+        context.flush();
+
     }
+
+
+
 
 
     private void sendMessage(ChannelHandlerContext context, HttpResponseStatus statusCode, Object msg) {

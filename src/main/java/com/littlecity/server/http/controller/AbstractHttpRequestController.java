@@ -1,8 +1,10 @@
 package com.littlecity.server.http.controller;
 
-import io.netty.handler.codec.http.FullHttpRequest;
-import io.netty.handler.codec.http.FullHttpResponse;
+import com.littlecity.server.entity.CustomHttpRequest;
+import com.littlecity.server.entity.CustomHttpResponse;
 import io.netty.handler.codec.http.HttpMethod;
+
+import java.io.IOException;
 
 /**
  * @author huangxiaocheng
@@ -11,9 +13,9 @@ import io.netty.handler.codec.http.HttpMethod;
 public abstract class AbstractHttpRequestController implements HttpRequestController {
 
     @Override
-    public void doService(FullHttpRequest request, FullHttpResponse response) {
+    public void doService(CustomHttpRequest request, CustomHttpResponse response) throws IOException {
         if (HttpMethod.GET.equals(request.getMethod())){
-            doget(request, response);
+            doGet(request, response);
         }
 
         if (HttpMethod.POST.equals(request.getMethod())){
@@ -22,7 +24,7 @@ public abstract class AbstractHttpRequestController implements HttpRequestContro
     }
 
 
-    public abstract void doget(FullHttpRequest request, FullHttpResponse response);
+    public abstract void doGet(CustomHttpRequest request, CustomHttpResponse response) throws IOException;
 
-    public abstract void doPost(FullHttpRequest request, FullHttpResponse response);
+    public abstract void doPost(CustomHttpRequest request, CustomHttpResponse response) throws IOException;
 }

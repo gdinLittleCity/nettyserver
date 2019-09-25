@@ -1,7 +1,9 @@
 package com.littlecity.server.http.controller;
 
-import io.netty.handler.codec.http.FullHttpRequest;
-import io.netty.handler.codec.http.FullHttpResponse;
+import com.littlecity.server.entity.CustomHttpRequest;
+import com.littlecity.server.entity.CustomHttpResponse;
+
+import java.io.IOException;
 
 /**
  * @author huangxiaocheng
@@ -14,6 +16,6 @@ public interface HttpRequestController {
      * @param request
      * @param response
      */
-    void doService(FullHttpRequest request, FullHttpResponse response);
+    void doService(CustomHttpRequest request, CustomHttpResponse response) throws IOException;
 
 }

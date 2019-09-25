@@ -1,6 +1,5 @@
 package com.littlecity.server.router.http;
 
-import lombok.Builder;
 import lombok.Data;
 
 import java.util.List;
@@ -16,7 +15,7 @@ public class RouterResult {
     private String uri;
 
 //    private Map<String, String> pathParams;
-    private Map<String, List<String>> queryParams;
+    private Map<String, Object> queryParams;
 
     private Class controller;
 

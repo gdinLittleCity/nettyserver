@@ -1,9 +1,9 @@
 package com.littlecity.server.service;
 
+import com.littlecity.server.entity.CustomHttpRequest;
+import com.littlecity.server.entity.CustomHttpResponse;
 import com.littlecity.server.http.controller.AbstractHttpRequestController;
 import io.netty.buffer.ByteBuf;
-import io.netty.handler.codec.http.FullHttpRequest;
-import io.netty.handler.codec.http.FullHttpResponse;
 
 /**
  * @author huangxiaocheng
@@ -11,13 +11,13 @@ import io.netty.handler.codec.http.FullHttpResponse;
  **/
 public class HelloController extends AbstractHttpRequestController {
     @Override
-    public void doget(FullHttpRequest request, FullHttpResponse response) {
+    public void doGet(CustomHttpRequest request, CustomHttpResponse response) {
         ByteBuf content = response.content();
         content.writeBytes("hello . get.".getBytes());
     }
 
     @Override
-    public void doPost(FullHttpRequest request, FullHttpResponse response) {
+    public void doPost(CustomHttpRequest request, CustomHttpResponse response) {
         ByteBuf content = response.content();
         content.writeBytes("hello . post.".getBytes());
     }

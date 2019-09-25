@@ -1,9 +1,9 @@
 package com.littlecity.server.router.http;
 
+import com.littlecity.server.entity.CustomHttpRequest;
+import com.littlecity.server.entity.CustomHttpResponse;
 import com.littlecity.server.http.controller.AbstractHttpRequestController;
 import io.netty.buffer.ByteBuf;
-import io.netty.handler.codec.http.FullHttpRequest;
-import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 
 /**
@@ -12,12 +12,12 @@ import io.netty.handler.codec.http.HttpResponseStatus;
  **/
 public class NotFoundController extends AbstractHttpRequestController {
     @Override
-    public void doget(FullHttpRequest request, FullHttpResponse response) {
+    public void doGet(CustomHttpRequest request, CustomHttpResponse response) {
         doPost(request, response);
     }
 
     @Override
-    public void doPost(FullHttpRequest request, FullHttpResponse response) {
+    public void doPost(CustomHttpRequest request, CustomHttpResponse response) {
         response.setStatus(HttpResponseStatus.NOT_FOUND);
 
         ByteBuf content = response.content();
