@@ -12,17 +12,12 @@ import io.netty.handler.codec.http.HttpVersion;
 public class UriUtils {
 
 
-    public static void main(String[] args) {
-//        BImp b = new BImp();
-//
-//        boolean bins = b instanceof InterfaceA;
-//
-//        System.out.println("b instanceof InterfaceA :"+bins);
+    /*public static void main(String[] args) {
 
         DefaultHttpRequest defaultHttpRequest = new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, "", true);
 
         boolean jk = defaultHttpRequest instanceof FullHttpRequest;
 
         System.out.println(" defaultHttpRequest instanceof FullHttpRequest:"+ jk);
-    }
+    }*/
 }

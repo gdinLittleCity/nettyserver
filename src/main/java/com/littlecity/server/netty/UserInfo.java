@@ -1,4 +1,4 @@
-package com.littlecity.server.entity;
+package com.littlecity.server.netty;
 
 import org.msgpack.annotation.Message;
 

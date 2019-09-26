@@ -1,6 +1,6 @@
 package com.littlecity.server.netty.decode;
 
-import com.littlecity.server.entity.UserInfo;
+import com.littlecity.server.netty.UserInfo;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageDecoder;

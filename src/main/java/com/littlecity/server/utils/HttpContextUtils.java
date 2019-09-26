@@ -38,11 +38,12 @@ public class HttpContextUtils {
 
     public static Map<String, Object> getRequestParamMap(FullHttpRequest request) throws IOException {
         Map<String, Object> requestMap = new HashMap<>();
+
+        Map<String, Object> parameters = getQueryStringParamMap(request.getUri());
+        requestMap.putAll(parameters);
+
         // get请求参数集成
         if (request.getMethod().equals(HttpMethod.GET)){
-            Map<String, Object> parameters = getQueryStringParamMap(request.getUri());
-
-            requestMap.putAll(parameters);
             return requestMap;
         }
         // 非 get/post 请求,不做处理
@@ -56,7 +57,7 @@ public class HttpContextUtils {
             log.error("after parse. content-type is null . not support.");
             return requestMap;
         }
-        log.info("after parse. content-type is:{}", contentType);
+        log.debug("after parse. content-type is:{}", contentType);
         // multipart/form-data
         if (contentType.equals(HttpRequestType.MULTIPART_FORM_DATA)) {
             commonPostParamGen(request, requestMap);

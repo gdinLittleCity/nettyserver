@@ -7,9 +7,9 @@ import io.netty.handler.codec.http.*;
  * @author huangxiaocheng
  * @Date 2019/9/25
  **/
-public class CustomHttpRequestDecoder  extends HttpObjectDecoder {
+public class CustomHttpRequestDecoder {
 
-    public CustomHttpRequestDecoder() {
+ /*   public CustomHttpRequestDecoder() {
     }
 
     public CustomHttpRequestDecoder(int maxInitialLineLength, int maxHeaderSize, int maxChunkSize) {
@@ -34,5 +34,5 @@ public class CustomHttpRequestDecoder  extends HttpObjectDecoder {
     @Override
     protected boolean isDecodingRequest() {
         return true;
-    }
+    }*/
 }

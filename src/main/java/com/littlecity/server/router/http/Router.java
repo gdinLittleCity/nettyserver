@@ -99,7 +99,7 @@ public class Router {
         log.info("router method:{}, uri:{}", method.name(), uri);
         QueryStringDecoder decoder = new QueryStringDecoder(uri);
         String path = decoder.path();
-        log.info("decode path:{} , parameters:{}", path, decoder.parameters());
+        log.debug("decode path:{} , parameters:{}", path, decoder.parameters());
 
         RouterResult routerResult = new RouterResult();
         Class controller ;

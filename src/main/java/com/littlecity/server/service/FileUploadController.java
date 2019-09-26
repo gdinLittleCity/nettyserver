@@ -1,11 +1,9 @@
 package com.littlecity.server.service;
 
 import com.alibaba.fastjson.JSON;
-import com.littlecity.server.entity.CustomHttpRequest;
-import com.littlecity.server.entity.HttpRequestType;
-import com.littlecity.server.entity.CustomHttpResponse;
-import com.littlecity.server.entity.RespResult;
+import com.littlecity.server.entity.*;
 import com.littlecity.server.http.controller.AbstractHttpRequestController;
+import com.littlecity.server.utils.HttpContextUtils;
 import io.netty.handler.codec.http.multipart.DiskFileUpload;
 import io.netty.handler.codec.http.multipart.FileUpload;
 import lombok.extern.slf4j.Slf4j;
@@ -30,10 +28,11 @@ public class FileUploadController extends AbstractHttpRequestController {
 
     @Override
     public void doPost(CustomHttpRequest request, CustomHttpResponse response) throws IOException {
-        String contentType = request.getHeader("Content-Type");
+        String contentType = HttpContextUtils.getContentType(request);
+        response.addHeader("content-type",HttpResponseContentType.APPLICATION_JSON);
         Map<String, Object> requestParamMap = request.getParameterMap();
 
-        if (contentType.equals(HttpRequestType.MULTIPART_FORM_DATA)){
+        if (contentType.contains(HttpRequestType.MULTIPART_FORM_DATA)){
             FileUpload fileUpload = (FileUpload) requestParamMap.get("file");
             String module = (String) requestParamMap.get("module");
             StringBuilder sb = new StringBuilder();
@@ -57,8 +56,9 @@ public class FileUploadController extends AbstractHttpRequestController {
             return;
         } else {
 
-            log.info("param:{}", JSON.toJSONString(requestParamMap));
-            response.setContent(RespResult.ok(), Charset.forName(CharEncoding.UTF_8));
+//            log.info("param:{}", JSON.toJSONString(requestParamMap));
+
+            response.setContent( RespResult.ok(), Charset.forName(CharEncoding.UTF_8));
             return;
 
         }

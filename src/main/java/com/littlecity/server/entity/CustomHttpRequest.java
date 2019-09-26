@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
  * @Date 2019/9/19
  **/
 @Data
-public class CustomHttpRequest extends DefaultHttpRequest {
+public class CustomHttpRequest extends DefaultFullHttpRequest {
 
     private Map<String,Object> parameterMap;
 
@@ -27,8 +27,12 @@ public class CustomHttpRequest extends DefaultHttpRequest {
         super(httpVersion, method, uri);
     }
 
-    public CustomHttpRequest(HttpVersion httpVersion, HttpMethod method, String uri, boolean validateHeaders) {
-        super(httpVersion, method, uri, validateHeaders);
+    public CustomHttpRequest(HttpVersion httpVersion, HttpMethod method, String uri, ByteBuf content) {
+        super(httpVersion, method, uri, content);
+    }
+
+    public CustomHttpRequest(HttpVersion httpVersion, HttpMethod method, String uri, ByteBuf content, boolean validateHeaders) {
+        super(httpVersion, method, uri, content, validateHeaders);
     }
 
 

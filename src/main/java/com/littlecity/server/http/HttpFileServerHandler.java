@@ -49,26 +49,30 @@ public class HttpFileServerHandler extends SimpleChannelInboundHandler<FullHttpR
         }
 
         String uri = request.getUri();
-        log.info("request uri is :{}", uri);
+        log.debug("request uri is :{}", uri);
 
-        log.info("router begin.");
+        log.debug("router begin.");
         RouterResult route = router.route(request.getMethod(), uri);
         log.info("router end. result:{}", route);
 
         Class controllerClazz = route.getController();
         HttpRequestController controller = (HttpRequestController) controllerClazz.newInstance();
 
-        CustomHttpRequest httpRequest = new CustomHttpRequest(HttpVersion.HTTP_1_1, request.getMethod(), request.getUri());
+
+        CustomHttpRequest httpRequest = new CustomHttpRequest(HttpVersion.HTTP_1_1, request.getMethod(), request.getUri(), request.content());
+        httpRequest.headers().set(request.headers());
+
         Map<String, Object> requestParamMap = HttpContextUtils.getRequestParamMap(request);
         httpRequest.setParameterMap(requestParamMap);
 
         CustomHttpResponse httpResponse = new CustomHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK);
 
         controller.doService(httpRequest, httpResponse);
-        log.info("controller handler end");
+
 
         context.write(httpResponse);
         context.flush();
+        context.close();
 
     }
 

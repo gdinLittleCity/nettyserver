@@ -1,11 +1,7 @@
 package com.littlecity.server.netty;
 
-import com.littlecity.server.entity.UserInfo;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelPromise;
 
 public class TimeClientHandler extends ChannelHandlerAdapter {
 
