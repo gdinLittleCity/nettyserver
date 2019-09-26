@@ -3,7 +3,7 @@
 ### 运行
 ```
 ## 打包
-mvn assembly
+> mvn assembly
 
 ## 启动服务
 > cd target
