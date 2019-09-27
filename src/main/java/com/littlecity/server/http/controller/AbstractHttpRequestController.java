@@ -16,10 +16,12 @@ public abstract class AbstractHttpRequestController implements HttpRequestContro
     public void doService(CustomHttpRequest request, CustomHttpResponse response) throws IOException {
         if (HttpMethod.GET.equals(request.getMethod())){
             doGet(request, response);
+            return;
         }
 
         if (HttpMethod.POST.equals(request.getMethod())){
             doPost(request, response);
+            return;
         }
     }
 

@@ -8,6 +8,7 @@ import io.netty.handler.codec.http.HttpVersion;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 
+import java.net.InetSocketAddress;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -20,6 +21,8 @@ import java.util.stream.Collectors;
  **/
 @Data
 public class CustomHttpRequest extends DefaultFullHttpRequest {
+
+    private InetSocketAddress localAddress;
 
     private Map<String,Object> parameterMap;
 

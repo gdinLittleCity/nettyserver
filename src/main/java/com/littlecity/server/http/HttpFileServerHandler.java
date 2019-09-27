@@ -16,6 +16,8 @@ import io.netty.handler.codec.http.multipart.*;
 import lombok.extern.slf4j.Slf4j;
 import org.aeonbits.owner.ConfigFactory;
 
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.util.Map;
 
 /**
@@ -47,6 +49,8 @@ public class HttpFileServerHandler extends SimpleChannelInboundHandler<FullHttpR
             sendMessage(context, HttpResponseStatus.SERVICE_UNAVAILABLE, "not support this request method.");
             return;
         }
+        InetSocketAddress socketAddress = (InetSocketAddress) context.channel().localAddress();
+
 
         String uri = request.getUri();
         log.debug("request uri is :{}", uri);
@@ -64,6 +68,8 @@ public class HttpFileServerHandler extends SimpleChannelInboundHandler<FullHttpR
 
         Map<String, Object> requestParamMap = HttpContextUtils.getRequestParamMap(request);
         httpRequest.setParameterMap(requestParamMap);
+
+        httpRequest.setLocalAddress(socketAddress);
 
         CustomHttpResponse httpResponse = new CustomHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK);
 

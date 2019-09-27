@@ -25,5 +25,9 @@ public interface ServerConfig extends Config {
     @Key("server.${env}.maxFileSize")
     Integer maxFileSize();
 
+    @DefaultValue("localhost")
+    @Key("server.${env}.hostName")
+    String hostName();
+
 
 }

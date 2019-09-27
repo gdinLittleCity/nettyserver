@@ -4,6 +4,7 @@ import com.littlecity.server.config.ServerConfig;
 import com.littlecity.server.decoder.CustomHttpRequestDecoder;
 import com.littlecity.server.http.HttpFileServerHandler;
 import com.littlecity.server.router.http.Router;
+import com.littlecity.server.service.FileDownloadController;
 import com.littlecity.server.service.FileUploadController;
 import com.littlecity.server.service.HelloController;
 import io.netty.bootstrap.ServerBootstrap;
@@ -34,7 +35,7 @@ public class HttpFileServer {
         // 配置router
         router.get("/getName", HelloController.class)
                 .post("/upload", FileUploadController.class)
-                .post("/getName", HelloController.class);
+                .get("/static", FileDownloadController.class);
 
         router.logRouterList();
 
@@ -65,7 +66,7 @@ public class HttpFileServer {
                 });
 
         try {
-            ChannelFuture future = bootstrap.bind(port).sync();
+            ChannelFuture future = bootstrap.bind(cfg.hostName(), port).sync();
             future.channel().closeFuture().sync();
         } catch (InterruptedException e) {
             e.printStackTrace();
