@@ -41,6 +41,7 @@ public class HttpFileServerHandler extends SimpleChannelInboundHandler<FullHttpR
 
     @Override
     protected void messageReceived(ChannelHandlerContext context, FullHttpRequest request) throws Exception {
+        long currentTime = System.currentTimeMillis();
         if (!request.getDecoderResult().isSuccess()) {
             sendMessage(context, HttpResponseStatus.BAD_REQUEST, "bad request");
             return;
@@ -56,8 +57,10 @@ public class HttpFileServerHandler extends SimpleChannelInboundHandler<FullHttpR
         log.debug("request uri is :{}", uri);
 
         log.debug("router begin.");
+
         RouterResult route = router.route(request.getMethod(), uri);
-        log.info("router end. result:{}", route);
+        long routerTime = System.currentTimeMillis() - currentTime;
+        log.info("router end. result:{},program total cost:{} ms", route, routerTime);
 
         Class controllerClazz = route.getController();
         HttpRequestController controller = (HttpRequestController) controllerClazz.newInstance();
@@ -74,11 +77,13 @@ public class HttpFileServerHandler extends SimpleChannelInboundHandler<FullHttpR
         CustomHttpResponse httpResponse = new CustomHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK);
 
         controller.doService(httpRequest, httpResponse);
-
+        long controllerTime =  System.currentTimeMillis() - currentTime;
+        log.info("controller end. program total cost:{} ms", controllerTime);
 
         context.write(httpResponse);
         context.flush();
         context.close();
+        log.info(" data write over. program total cost:{} ms", System.currentTimeMillis() - currentTime);
 
     }
 
