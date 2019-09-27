@@ -42,7 +42,7 @@ public class FileUploadController extends AbstractHttpRequestController {
             String module = (String) requestParamMap.get("module");
             // 展示方式 1: 网页显示, 2: 下载
             String displayStr = (String) requestParamMap.get("display");
-            Map<String, Object> resultMap = new HashMap<>(1);
+            Map<String, Object> resultMap = new HashMap<>();
             if(StringUtils.isEmpty(module) || StringUtils.isEmpty(displayStr)){
                 response.setContent(RespResult.of("param : module or display is empty"), Charset.forName(CharEncoding.UTF_8));
                 return;
