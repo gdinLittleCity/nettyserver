@@ -18,10 +18,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.apache.commons.codec.CharEncoding.UTF_8;
 
@@ -123,7 +120,15 @@ public class HttpContextUtils {
 
             if (data.getHttpDataType() == InterfaceHttpData.HttpDataType.FileUpload) {
                 FileUpload fileUpload = (FileUpload) data;
-                requestMap.put(fileUpload.getName(), fileUpload);
+                Object fileObject =  requestMap.get(fileUpload.getName());
+                List<FileUpload> files ;
+                if(fileObject != null){
+                    files = (List<FileUpload>) fileObject;
+                } else {
+                    files = new ArrayList<>();
+                }
+                files.add(fileUpload);
+                requestMap.put(fileUpload.getName(), files);
             }
 
         }

@@ -9,12 +9,15 @@ import io.netty.handler.codec.http.multipart.DiskFileUpload;
 import io.netty.handler.codec.http.multipart.FileUpload;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.CharEncoding;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -35,28 +38,38 @@ public class FileUploadController extends AbstractHttpRequestController {
         Map<String, Object> requestParamMap = request.getParameterMap();
 
         if (contentType.contains(HttpRequestType.MULTIPART_FORM_DATA)){
-            FileUpload fileUpload = (FileUpload) requestParamMap.get("file");
+            List<FileUpload> fileUploadList = (List<FileUpload>) requestParamMap.get("file");
             String module = (String) requestParamMap.get("module");
-            StringBuilder sb = new StringBuilder();
-            sb.append(DiskFileUpload.baseDirectory)
-                    .append(File.separator)
-                    .append(module);
-            String fileName = buildFileName(fileUpload, module);
-            if (fileUpload.isCompleted()) {
-                File newFileParent = new File(sb.toString());
-                if (!newFileParent.exists()){
-                    newFileParent.mkdirs();
-                }
-                File newFile = new File(newFileParent, fileName);
-                boolean renameResult = fileUpload.renameTo(newFile);
-
-                log.info("rename to result:{}", renameResult);
+            // 展示方式 1: 网页显示, 2: 下载
+            String displayStr = (String) requestParamMap.get("display");
+            Map<String, Object> resultMap = new HashMap<>(1);
+            if(StringUtils.isEmpty(module) || StringUtils.isEmpty(displayStr)){
+                response.setContent(RespResult.of("param : module or display is empty"), Charset.forName(CharEncoding.UTF_8));
+                return;
             }
 
-            Map<String,String> resultMap = new HashMap<>();
-            InetSocketAddress localAddress = request.getLocalAddress();
-            String fileUrl = buildResourcePath(localAddress, module, 1, fileName);
-            resultMap.put("url", fileUrl);
+            StringBuilder sb = new StringBuilder();
+            sb.append(DiskFileUpload.baseDirectory).append(File.separator).append(module);
+            List<String> urls = new ArrayList<>();
+            // 文件的磁盘持久化
+            for (FileUpload fileUpload : fileUploadList) {
+                String fileName = buildFileName(fileUpload, module);
+                if (fileUpload.isCompleted()) {
+                    File newFileParent = new File(sb.toString());
+                    if (!newFileParent.exists()){
+                        newFileParent.mkdirs();
+                    }
+                    File newFile = new File(newFileParent, fileName);
+                    boolean renameResult = fileUpload.renameTo(newFile);
+                    log.info("rename to result:{}", renameResult);
+                }
+
+                InetSocketAddress localAddress = request.getLocalAddress();
+                String fileUrl = buildResourcePath(localAddress, module, Integer.valueOf(displayStr), fileName);
+                urls.add(fileUrl);
+            }
+
+            resultMap.put("urls", urls);
             response.setContent(RespResult.of(resultMap), Charset.forName(CharEncoding.UTF_8));
             return;
         } else {

@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.littlecity.server.config.ServerConfig;
 import com.littlecity.server.entity.CustomHttpRequest;
 import com.littlecity.server.entity.CustomHttpResponse;
+import com.littlecity.server.entity.FileDisplay;
 import com.littlecity.server.http.controller.AbstractHttpRequestController;
 import lombok.extern.slf4j.Slf4j;
 import org.aeonbits.owner.ConfigFactory;
@@ -54,10 +55,10 @@ public class FileDownloadController extends AbstractHttpRequestController {
             String contentType = Files.probeContentType(Paths.get(resoure.toURI()));
 
             switch (display) {
-                case 1:
+                case FileDisplay.WEB:
                     response.addHeader("content-type",contentType);
                     break;
-                case 2:
+                case FileDisplay.DOWN_LOAD:
                     response.addHeader("content-type","application/octet-stream; charset=utf-8");
                     response.addHeader("Content-Disposition","attachment;filename=\""+ new String(fileName.getBytes(), "UTF-8") +"\"");
                     break;
