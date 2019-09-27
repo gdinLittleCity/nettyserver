@@ -46,28 +46,35 @@ public class FileDownloadController extends AbstractHttpRequestController {
 
 
         String fileDir = CONFIG.fileDir();
+        FileInputStream fis = null;
+        try{
+            File resoure = new File(fileDir + File.separator + module + File.separator + fileName);
+            fis = new FileInputStream(resoure);
+            byte[] fileByte = new byte[1024];
+            while (fis.read(fileByte) > 0){
+                response.content().writeBytes(fileByte);
+            }
+            String contentType = Files.probeContentType(Paths.get(resoure.toURI()));
 
-        File resoure = new File(fileDir + File.separator + module + File.separator + fileName);
+            switch (display) {
+                case 1:
+                    response.addHeader("content-type",contentType);
+                    break;
+                case 2:
+                    response.addHeader("content-type","application/octet-stream; charset=utf-8");
+                    response.addHeader("Content-Disposition","attachment;filename=\""+ new String(fileName.getBytes(), "UTF-8") +"\"");
+                    break;
+                default:
+                    break;
 
-        FileInputStream fis = new FileInputStream(resoure);
-        byte[] fileByte = new byte[1024];
-        while (fis.read(fileByte) > 0){
-            response.content().writeBytes(fileByte);
+            }
+        } finally {
+            if (fis != null){
+                fis.close();
+            }
         }
-        String contentType = Files.probeContentType(Paths.get(resoure.toURI()));
 
-        switch (display) {
-            case 1:
-                response.addHeader("content-type",contentType);
-             break;
-            case 2:
-                response.addHeader("content-type","application/octet-stream; charset=utf-8");
-                response.addHeader("Content-Disposition","attachment;filename=\""+ new String(fileName.getBytes(), "UTF-8") +"\"");
-                break;
-            default:
-                break;
 
-        }
 
 
     }
