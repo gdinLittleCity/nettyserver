@@ -18,7 +18,7 @@
     <logback.version>1.1.7</logback.version>
     <owner.version>1.0.8</owner.version>
     <netty.version>5.0.0.Alpha1</netty.version>
-    <fastjson.version>1.2.60</fastjson.version>
+    <fastjson.version>1.2.83</fastjson.version>
     <lang.version>3.8.1</lang.version>
     <lombok.version>1.16.10</lombok.version>
     <commons.codec.version>1.10</commons.codec.version>
